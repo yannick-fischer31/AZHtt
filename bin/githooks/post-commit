@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# Custom post-commit hook that runs the linter.
+
+action() {
+    # just lint
+    if [ ! -d "${AZH_BASE}" ]; then
+        >&2 echo "AZH_BASE not setup, skip linting"
+    elif [ "${AZH_SKIP_POST_COMMIT}" != "1" ]; then
+        echo "post-commit linting ..."
+        bash "${AZH_BASE}/tests/run_linting"
+        echo
+    fi
+
+    # always end successfully
+    return "0"
+}
+action "$@"
