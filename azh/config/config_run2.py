@@ -13,7 +13,6 @@ from scinum import Number
 import order as od
 
 from columnflow.util import DotDict
-from columnflow.config_util import get_root_processes_from_campaign
 # from dijet.config.datasets import get_dataset_lfns
 from azh.config.analysis_azh import analysis_azh
 from azh.config.variables import add_variables
@@ -66,17 +65,15 @@ def add_config(
 
     # add datasets we need to study
     process_names = [
-    "tt",
+        "tt",
     ]
     for process_name in process_names:
-        proc = cfg.add_process(procs.get(process_name))
+        cfg.add_process(procs.get(process_name))
 
     dataset_names = [
-    
-    "tt_sl_powheg",
-    "st_tchannel_t_powheg",
-
-]
+        "tt_sl_powheg",
+        "st_tchannel_t_powheg",
+    ]
     for dataset_name in dataset_names:
         dataset = cfg.add_dataset(campaign.get_dataset(dataset_name))
         if limit_dataset_files:
@@ -596,24 +593,23 @@ def add_config(
     # add categories
 
     add_category(
-    cfg,
-    id=1,
-    name="incl",
-    selection="cat_incl",
-    label="inclusive",
+        cfg,
+        id=1,
+        name="incl",
+        selection="cat_incl",
+        label="inclusive",
     )
 
     add_category(
-    cfg,
-    name="2j",
-    id=2,
-    selection="cat_2j",
-    label="2 jets",
+        cfg,
+        name="2j",
+        id=2,
+        selection="cat_2j",
+        label="2 jets",
     )
 
     add_variables(cfg)
     add_cutflow_variables(cfg)
-    
 
     # only produce cutflow features when number of dataset_files is limited (used in selection module)
     cfg.x.do_cutflow_features = bool(limit_dataset_files) and limit_dataset_files <= 10
