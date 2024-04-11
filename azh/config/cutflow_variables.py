@@ -57,7 +57,7 @@ def add_cutflow_variables(config: od.Config) -> None:
     #         x_title=f"Number of {obj}s",
     #     )
 
-    for prop in ("jet1_pt","jet1_eta","jet1_phi"):
+    for prop in ("jet1_pt", "jet1_eta", "jet1_phi"):
         config.add_variable(
             name=f"cf_{prop}",
             expression=f"cutflow.{prop}",

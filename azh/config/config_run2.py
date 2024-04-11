@@ -13,11 +13,14 @@ from scinum import Number
 import order as od
 
 from columnflow.util import DotDict
-from columnflow.config_util import get_root_processes_from_campaign
 # from dijet.config.datasets import get_dataset_lfns
 from azh.config.analysis_azh import analysis_azh
 from azh.config.variables import add_variables
 from azh.config.cutflow_variables import add_cutflow_variables
+from columnflow.config_util import (
+    get_root_processes_from_campaign, add_shift_aliases, get_shifts_from_sources, add_category,
+    verify_config_processes,
+)
 
 
 thisdir = os.path.dirname(os.path.abspath(__file__))
@@ -47,8 +50,11 @@ def add_config(
     procs = get_root_processes_from_campaign(campaign)
 
     # create a config by passing the campaign, so id and name will be identical
+    print("Begin campaign")
+    print(campaign)
+    print(config_name)
     cfg = analysis_azh.add_config(campaign, name=config_name, id=config_id)
-
+    print(cfg)
     # use custom get_dataset_lfns function
     # cfg.x.get_dataset_lfns = get_dataset_lfns
 
@@ -59,17 +65,15 @@ def add_config(
 
     # add datasets we need to study
     process_names = [
-    "tt",
+        "tt",
     ]
     for process_name in process_names:
-        proc = cfg.add_process(procs.get(process_name))
+        cfg.add_process(procs.get(process_name))
 
     dataset_names = [
-    
-    "tt_sl_powheg",
-    "st_tchannel_t_powheg",
-
-]
+        "tt_sl_powheg",
+        "st_tchannel_t_powheg",
+    ]
     for dataset_name in dataset_names:
         dataset = cfg.add_dataset(campaign.get_dataset(dataset_name))
         if limit_dataset_files:
@@ -588,9 +592,24 @@ def add_config(
 
     # add categories
 
+    add_category(
+        cfg,
+        id=1,
+        name="incl",
+        selection="cat_incl",
+        label="inclusive",
+    )
+
+    add_category(
+        cfg,
+        name="2j",
+        id=2,
+        selection="cat_2j",
+        label="2 jets",
+    )
+
     add_variables(cfg)
     add_cutflow_variables(cfg)
-    
 
     # only produce cutflow features when number of dataset_files is limited (used in selection module)
     cfg.x.do_cutflow_features = bool(limit_dataset_files) and limit_dataset_files <= 10
