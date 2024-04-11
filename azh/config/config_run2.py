@@ -18,6 +18,10 @@ from columnflow.config_util import get_root_processes_from_campaign
 from azh.config.analysis_azh import analysis_azh
 from azh.config.variables import add_variables
 from azh.config.cutflow_variables import add_cutflow_variables
+from columnflow.config_util import (
+    get_root_processes_from_campaign, add_shift_aliases, get_shifts_from_sources, add_category,
+    verify_config_processes,
+)
 
 
 thisdir = os.path.dirname(os.path.abspath(__file__))
@@ -47,8 +51,11 @@ def add_config(
     procs = get_root_processes_from_campaign(campaign)
 
     # create a config by passing the campaign, so id and name will be identical
+    print("Begin campaign")
+    print(campaign)
+    print(config_name)
     cfg = analysis_azh.add_config(campaign, name=config_name, id=config_id)
-
+    print(cfg)
     # use custom get_dataset_lfns function
     # cfg.x.get_dataset_lfns = get_dataset_lfns
 
@@ -587,6 +594,22 @@ def add_config(
     }
 
     # add categories
+
+    add_category(
+    cfg,
+    id=1,
+    name="incl",
+    selection="cat_incl",
+    label="inclusive",
+    )
+
+    add_category(
+    cfg,
+    name="2j",
+    id=2,
+    selection="cat_2j",
+    label="2 jets",
+    )
 
     add_variables(cfg)
     add_cutflow_variables(cfg)

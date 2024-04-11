@@ -80,7 +80,7 @@ config_2017 = add_config(
     analysis_azh,
     campaign_run2_2017_nano_v9.copy(),
     config_name="run2_2017_nano_v9",
-    config_id=2,
+    config_id=1,
 )
 config_2017_limited = add_config(
     analysis_azh,
@@ -89,7 +89,7 @@ config_2017_limited = add_config(
     config_id=12,
     limit_dataset_files=1,
 )
-print(config_2017)
+print(config_2017.name)
 print(type(config_2017))
 print("Config done")
 
