@@ -10,7 +10,7 @@
 
 ### Setting up the analysis
 - Best fork a private version of repo
-- git clone "URL to your repo"
+- git clone --recursive "URL to your repo"
 - source setup.sh (may take some time when run for the first time)
 - If needed create GRID proxy
 
