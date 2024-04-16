@@ -13,6 +13,7 @@ from scinum import Number
 import order as od
 
 from columnflow.util import DotDict
+import functools
 # from dijet.config.datasets import get_dataset_lfns
 from azh.config.analysis_azh import analysis_azh
 from azh.config.variables import add_variables
@@ -72,10 +73,11 @@ def add_config(
 
     dataset_names = [
         "tt_sl_powheg",
-        "st_tchannel_t_powheg",
+        # "st_tchannel_t_powheg",
     ]
     for dataset_name in dataset_names:
         dataset = cfg.add_dataset(campaign.get_dataset(dataset_name))
+        print(dataset)
         if limit_dataset_files:
             # apply optional limit on the max. number of files per dataset
             for info in dataset.info.values():
@@ -88,7 +90,7 @@ def add_config(
 
     # default calibrator, selector, producer, ml model and inference model
     cfg.x.default_calibrator = "example"
-    cfg.x.default_selector = "example"
+    cfg.x.default_selector = "default"
     cfg.x.default_producer = "example"
     # cfg.x.default_ml_model = "default"
     # cfg.x.default_ml_model = None
@@ -324,11 +326,13 @@ def add_config(
     cfg.add_shift(name="e_trig_sf_down", id=43, type="shape")
     add_aliases("e_sf", {"electron_weight": "electron_weight_{direction}"}, selection_dependent=False)
 
-    cfg.add_shift(name="mu_sf_up", id=50, type="shape")
-    cfg.add_shift(name="mu_sf_down", id=51, type="shape")
-    cfg.add_shift(name="mu_trig_sf_up", id=52, type="shape")
-    cfg.add_shift(name="mu_trig_sf_down", id=53, type="shape")
-    add_aliases("mu_sf", {"muon_weight": "muon_weight_{direction}"}, selection_dependent=False)
+    cfg.add_shift(name="muon_up", id=51, type="shape")
+    cfg.add_shift(name="muon_down", id=52, type="shape")
+    add_shift_aliases(cfg, "muon", {"muon_weight": "muon_weight_{direction}"})
+
+    # cfg.add_shift(name="mu_trig_sf_up", id=52, type="shape")
+    # cfg.add_shift(name="mu_trig_sf_down", id=53, type="shape")
+    # add_aliases("mu_sf", {"muon_weight": "muon_weight_{direction}"}, selection_dependent=False)
 
     btag_uncs = [
         "hf", "lf", f"hfstats1_{year}", f"hfstats2_{year}",
@@ -458,6 +462,11 @@ def add_config(
             for jet_obj in ["Jet"]
             # NOTE: if we run into storage troubles, skip Bjet and Lightjet
             for field in ["pt", "eta", "phi", "mass", "genJetIdx"]
+        ) | set(  # Muons
+            f"{mu_obj}.{field}"
+            for mu_obj in ["Muon"]
+            # NOTE: if we run into storage troubles, skip Bjet and Lightjet
+            for field in ["pt", "eta", "phi"]
         ) | set(  # MET
             f"MET.{field}"
             for field in ["pt", "phi"]
@@ -472,10 +481,13 @@ def add_config(
     )
 
     # event weight columns as keys in an ordered dict, mapped to shift instances they depend on
-    get_shifts = lambda *keys: sum(([cfg.get_shift(f"{k}_up"), cfg.get_shift(f"{k}_down")] for k in keys), [])
-    cfg.x.event_weights = DotDict()
-
-    cfg.x.event_weights["normalization_weight"] = []
+    # get_shifts = lambda *keys: sum(([cfg.get_shift(f"{k}_up"), cfg.get_shift(f"{k}_down")] for k in keys), [])
+    get_shifts = functools.partial(get_shifts_from_sources, cfg)
+    print(get_shifts("muon"))
+    cfg.x.event_weights = DotDict({
+        "normalization_weight": [],
+        "muon_weight": get_shifts("muon"),
+    })
 
     # for dataset in cfg.datasets:
     #     if dataset.x("is_ttbar", False):
@@ -485,14 +497,14 @@ def add_config(
     # cfg.x.event_weights["normalized_btag_weight"] = get_shifts(*(f"btag_{unc}" for unc in btag_uncs))
     # TODO: fix pu_weight; takes way too large values (from 0 to 160)
     # cfg.x.event_weights["normalized_pu_weight"] = get_shifts("minbias_xs")
-    for dataset in cfg.datasets:
-        dataset.x.event_weights = DotDict()
-        if not dataset.x("is_qcd", False):
-            # pdf/scale weights for all non-qcd datasets
-            dataset.x.event_weights["normalized_murf_envelope_weight"] = get_shifts("murf_envelope")
-            dataset.x.event_weights["normalized_mur_weight"] = get_shifts("mur")
-            dataset.x.event_weights["normalized_muf_weight"] = get_shifts("muf")
-            dataset.x.event_weights["normalized_pdf_weight"] = get_shifts("pdf")
+    # for dataset in cfg.datasets:
+    #     dataset.x.event_weights = DotDict()
+    #     if not dataset.x("is_qcd", False):
+    #         # pdf/scale weights for all non-qcd datasets
+    #         dataset.x.event_weights["normalized_murf_envelope_weight"] = get_shifts("murf_envelope")
+    #         dataset.x.event_weights["normalized_mur_weight"] = get_shifts("mur")
+    #         dataset.x.event_weights["normalized_muf_weight"] = get_shifts("muf")
+    #         dataset.x.event_weights["normalized_pdf_weight"] = get_shifts("pdf")
 
     # Trigger selection
     # TODO: SingleJet triggers for AK8 and some special cases in UL16 & UL17
