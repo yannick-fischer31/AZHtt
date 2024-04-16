@@ -32,13 +32,13 @@ ak = maybe_import("awkward")
     uses={
         process_ids, attach_coffea_behavior,
         mc_weight,  # not opened per default but always required in Cutflow tasks
-        jet_selection, lepton_selection, #azh_selection,
+        jet_selection, lepton_selection,  # azh_selection,
         increment_stats,
     },
     produces={
-         process_ids, attach_coffea_behavior,
-        mc_weight, 
-        jet_selection, lepton_selection, #azh_selection,
+        process_ids, attach_coffea_behavior,
+        mc_weight,
+        jet_selection, lepton_selection,  # azh_selection,
         increment_stats,
     },
     exposed=True,

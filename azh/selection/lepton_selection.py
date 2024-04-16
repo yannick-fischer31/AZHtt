@@ -10,7 +10,7 @@ ak = maybe_import("awkward")
 @selector(
 
     uses={
-        "Electron.pt", "Electron.eta", 
+        "Electron.pt", "Electron.eta",
         "Muon.pt", "Muon.eta", "Muon.tightId",
     },
     produces={"cutflow.n_ele", "cutflow.n_muo"},
@@ -33,7 +33,7 @@ def lepton_selection(
     # mask for electrons
     ele_mask = (
         (events.Electron.pt > 20) &
-        (abs(events.Electron.eta) < 2.4) 
+        (abs(events.Electron.eta) < 2.4)
     )
 
     events = set_ak_column(events, "cutflow.n_ele", ak.sum(ele_mask, axis=1))

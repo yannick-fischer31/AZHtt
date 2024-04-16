@@ -35,7 +35,7 @@ def jet_selection(
         (events.Jet.pt > 30) &
         (abs(events.Jet.eta) < 2.4) &
         # IDs in NanoAOD https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookNanoAOD
-        (events.Jet.jetId == 6)# &  # 2: fail tight LepVeto and 6: pass tightLepVeto
+        (events.Jet.jetId == 6)  # &  # 2: fail tight LepVeto and 6: pass tightLepVeto
         # ((events.Jet.puId == 7) | (events.Jet.pt > 50))  # pass all IDs (l, m and t) only for jets with pt < 50 GeV
     )
     jet_sel = ak.num(events.Jet[jet_mask]) >= 5
@@ -43,7 +43,7 @@ def jet_selection(
     jet_indices = masked_sorted_indices(jet_mask, events.Jet.pt)
     jet_sel = ak.fill_none(jet_sel, False)
     jet_mask = ak.fill_none(jet_mask, False)
-    print("Jet Selection:" , jet_sel)
+    print("Jet Selection:", jet_sel)
     # build and return selection results plus new columns
     return events, SelectionResult(
         steps={
