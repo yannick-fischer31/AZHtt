@@ -89,6 +89,13 @@ def add_variables(config: od.Config) -> None:
         unit="GeV",
         x_title="$p_{T}$ of all jets",
     )
+    config.add_variable(
+        name="m_z",
+        expression="m_z",
+        binning=(40, 0, 400),
+        unit="GeV",
+        x_title="Invariant mass of two leptons",
+    )
 
     # Jets (3 pt-leading jets)
     for i in range(3):
@@ -123,3 +130,26 @@ def add_variables(config: od.Config) -> None:
             x_title=r"Jet %i mass" % (i + 1),
         )
 
+    for i in range(2):
+        config.add_variable(
+            name=f"Lepton{i+1}_pt",
+            expression=f"Leptons.pt[:,{i}]",
+            null_value=EMPTY_FLOAT,
+            binning=(40, 0., 400.),
+            unit="GeV",
+            x_title=r"Lepton %i $p_{T}$" % (i + 1),
+        )
+        config.add_variable(
+            name=f"Lepton{i+1}_eta",
+            expression=f"Leptons.eta[:,{i}]",
+            null_value=EMPTY_FLOAT,
+            binning=(50, -2.5, 2.5),
+            x_title=r"Lepton %i $\eta$" % (i + 1),
+        )
+        config.add_variable(
+            name=f"Lepton{i+1}_phi",
+            expression=f"Leptons.phi[:,{i}]",
+            null_value=EMPTY_FLOAT,
+            binning=(40, -3.2, 3.2),
+            x_title=r"Lepton %i $\phi$" % (i + 1),
+        )

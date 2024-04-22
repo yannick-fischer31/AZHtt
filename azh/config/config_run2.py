@@ -16,6 +16,7 @@ from columnflow.util import DotDict
 import functools
 # from dijet.config.datasets import get_dataset_lfns
 from azh.config.analysis_azh import analysis_azh
+from azh.config.categories import add_categories_selection
 from azh.config.variables import add_variables
 from azh.config.cutflow_variables import add_cutflow_variables
 from columnflow.config_util import (
@@ -67,6 +68,7 @@ def add_config(
     # add datasets we need to study
     process_names = [
         "tt",
+        "dy",
     ]
     for process_name in process_names:
         cfg.add_process(procs.get(process_name))
@@ -74,6 +76,14 @@ def add_config(
     dataset_names = [
         "tt_sl_powheg",
         # "st_tchannel_t_powheg",
+        "dy_lep_m50_ht70to100_madgraph",
+        "dy_lep_m50_ht100to200_madgraph",
+        "dy_lep_m50_ht200to400_madgraph",
+        "dy_lep_m50_ht400to600_madgraph",
+        "dy_lep_m50_ht600to800_madgraph",
+        "dy_lep_m50_ht800to1200_madgraph",
+        "dy_lep_m50_ht1200to2500_madgraph",
+        "dy_lep_m50_ht2500_madgraph", 
     ]
     for dataset_name in dataset_names:
         dataset = cfg.add_dataset(campaign.get_dataset(dataset_name))
@@ -91,11 +101,11 @@ def add_config(
     # default calibrator, selector, producer, ml model and inference model
     cfg.x.default_calibrator = "example"
     cfg.x.default_selector = "default"
-    cfg.x.default_producer = "example"
+    cfg.x.default_producer = "default"
     # cfg.x.default_ml_model = "default"
     # cfg.x.default_ml_model = None
     cfg.x.default_inference_model = "example"
-    cfg.x.default_categories = ["incl"]
+    cfg.x.default_categories = ["cat_incl"]
     cfg.x.default_variables = ["jet1_pt"]
 
     # process groups for conveniently looping over certain processs
@@ -116,6 +126,8 @@ def add_config(
     # (used during plotting)
     cfg.x.category_groups = {
         "default": ["incl"],
+        "leptons_selection": ["catid_selection_2e","catid_selection_2mu"],
+        "leptons": ["catid_2e","catid_2mu"],
         "sm": ["sm"],
         "fe": ["fe"],
     }
@@ -466,7 +478,12 @@ def add_config(
             f"{mu_obj}.{field}"
             for mu_obj in ["Muon"]
             # NOTE: if we run into storage troubles, skip Bjet and Lightjet
-            for field in ["pt", "eta", "phi"]
+            for field in ["pt", "eta", "phi", "mass", "pdgId"]
+        ) | set(  # Electrons
+            f"{e_obj}.{field}"
+            for e_obj in ["Electron"]
+            # NOTE: if we run into storage troubles, skip Bjet and Lightjet
+            for field in ["pt", "eta", "phi", "mass", "pdgId"]
         ) | set(  # MET
             f"MET.{field}"
             for field in ["pt", "phi"]
@@ -486,7 +503,7 @@ def add_config(
     print(get_shifts("muon"))
     cfg.x.event_weights = DotDict({
         "normalization_weight": [],
-        "muon_weight": get_shifts("muon"),
+        # "muon_weight": get_shifts("muon"),
     })
 
     # for dataset in cfg.datasets:
@@ -604,23 +621,24 @@ def add_config(
 
     # add categories
 
-    add_category(
-        cfg,
-        id=1,
-        name="incl",
-        selection="cat_incl",
-        label="inclusive",
-    )
+    # add_category(
+    #     cfg,
+    #     id=1,
+    #     name="incl",
+    #     selection="cat_incl",
+    #     label="inclusive",
+    # )
 
-    add_category(
-        cfg,
-        name="2j",
-        id=2,
-        selection="cat_2j",
-        label="2 jets",
-    )
+    # add_category(
+    #     cfg,
+    #     name="2j",
+    #     id=2,
+    #     selection="cat_2j",
+    #     label="2 jets",
+    # )
 
     add_variables(cfg)
+    add_categories_selection(cfg)
     add_cutflow_variables(cfg)
 
     # only produce cutflow features when number of dataset_files is limited (used in selection module)
